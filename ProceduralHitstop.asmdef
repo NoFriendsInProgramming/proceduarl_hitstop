@@ -2,7 +2,8 @@
     "name": "ProceduralHitstop",
     "rootNamespace": "ProceduralHitstop",
     "references": [
-        "GUID:4c25c05f410a3a447a75c3b0909152ef"
+        "GUID:4c25c05f410a3a447a75c3b0909152ef",
+        "GUID:7f7d1af65c2641843945d409d28f2e20"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

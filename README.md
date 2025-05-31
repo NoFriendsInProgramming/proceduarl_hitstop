@@ -2,7 +2,7 @@
 
 ## Description
 
-A plugin that allows you to simulate the traditional hitstop effect via IK animation without it having a detrimental effect on game logic and speed.s
+A plugin that allows you to simulate the traditional hitstop effect via IK animation without it having a detrimental effect on game logic and speed.
 
 ## Dependencies
 

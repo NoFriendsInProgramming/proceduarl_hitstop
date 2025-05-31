@@ -3,5 +3,12 @@
     "displayName": "Procedual Hitstop via IK",
     "version": "0.1.0",
     "unity": "2022.3",
-    "description": "A set of scripts to mimic hitstop via IK animation that doesn't affect game speed "
+    "description": "A set of scripts to mimic hitstop via IK animation that doesn't affect game speed ",
+    "samples": [
+  {
+    "displayName": "Example Scene",
+    "description": "Example scene with character model and animations demonstrating how to use ProceduralHitstop.",
+    "path": "Samples~/Example"
+  }
+]
   }
