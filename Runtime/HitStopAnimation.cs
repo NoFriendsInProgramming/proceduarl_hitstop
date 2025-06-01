@@ -1,16 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using Animancer;
-using UnityEngine.Animations;
-//using System;
+using System.Linq;
 namespace ProceduralHitstop
 {
     public class HitStopAnimation : MonoBehaviour
     {
+        [System.Serializable]
+        public struct IKTipRootPair
+        {
+            public Transform tip;
+            public Transform root;
+            public IKTipRootPair(Transform tip, Transform root)
+            {
+                this.tip = tip;
+                this.root = root;
+            }
+        }
+        [System.Serializable]
+        public struct HitstopParameters
+        {
+            public float hitstopDuration;
+            public float hitstopSpeedMultiplier;
+            public float hitstopReturnDuration;
+            public AnimationCurve returnCurve;
 
+            public HitstopParameters(float hitstopDuration, float hitstopSpeedMultiplier, float hitstopReturnDuration, AnimationCurve returnCurve)
+            {
+                this.hitstopDuration = hitstopDuration;
+                this.hitstopSpeedMultiplier = hitstopSpeedMultiplier;
+                this.hitstopReturnDuration = hitstopReturnDuration;
+                this.returnCurve = returnCurve;
+            }
+        }
         struct IkController
         {
             public ChainIKConstraint constraint;
@@ -30,20 +54,14 @@ namespace ProceduralHitstop
         Rig rig;
         RigBuilder builder;
 
-        [SerializeField] Transform[] manuallyPlacedHitstopPoints;
-        [SerializeField] Transform tip;
-        [SerializeField] Transform root;
-        [SerializeField] bool hasHitStop = true;
-        [SerializeField] float hitstopDuration = 0.1f;
-        [SerializeField] float hitstopSpeedMultiplier = 0.2f;
-        [SerializeField] float hitstopReturnDuration = 0.3f;
-        [SerializeField][Range(0, 1f)] float animationSpeed = 1;
-        [SerializeField] AnimationCurve returnCurve;
-        [field: SerializeField] public ScriptableClipTransition scriptableTransition { get; private set; }
+        [SerializeField] IKTipRootPair[] manuallyPlacedHitstopPairs;
+        [SerializeField] HitstopParameters defaultHitstopParameters = new HitstopParameters(0.1f, 0.2f, 0.3f, AnimationCurve.EaseInOut(0, 0, 1, 1));
 
         HaltableRig _referenceRig;
         HaltableRig haltableRig;
         HaltableRig referenceRig => _referenceRig ??= CreateReferenceRig();
+
+        public AnimancerComponent mainAnimancer => haltableRig.animancer;
         HaltableRig CreateReferenceRig()
         {
             var rig = Instantiate(haltableRig);
@@ -62,19 +80,13 @@ namespace ProceduralHitstop
 
         private void Awake()
         {
-            if (manuallyPlacedHitstopPoints != null && manuallyPlacedHitstopPoints.Length > 0)
+            if (manuallyPlacedHitstopPairs != null && manuallyPlacedHitstopPairs.Length > 0)
             {
-                Initialize(manuallyPlacedHitstopPoints, root);
+                Initialize(manuallyPlacedHitstopPairs);
             }
-            //PrepareIK();
         }
 
-        public void IncurHitStop(Transform impactPoint, float delay = 0.9f)
-        {
-            StartCoroutine(HitStop(impactPoint, delay));
-        }
-
-        public void Initialize(Transform[] hitstopPoints, Transform ikRoot)
+        public void Initialize(IKTipRootPair[] hitstopPairInfo)
         {
             if (!hasBeenInialized)
             {
@@ -86,7 +98,6 @@ namespace ProceduralHitstop
                 }
 
                 hasBeenInialized = true;
-                root = ikRoot;
                 builder = haltableRig.gameObject.AddComponent<RigBuilder>();
 
                 rig = new GameObject("Rig").AddComponent<Rig>();
@@ -96,20 +107,20 @@ namespace ProceduralHitstop
 
                 target = new GameObject("Target").transform;
 
-                haltableRig.hitstopPoints = hitstopPoints;
+                haltableRig.hitstopPoints = hitstopPairInfo.Select(x=>x.tip).ToArray();
 
                 ikControllers = new Dictionary<Transform, IkController>();
-                for (int i = 0; i < hitstopPoints.Length; i++)
+                for (int i = 0; i < hitstopPairInfo.Length; i++)
                 {
-                    CreateChainIkConstraint(i, ikRoot);
+                    CreateChainIkConstraint(i, hitstopPairInfo[i].root);
                 }
-                //referenceRig.animator.
+
             
                 Component[] components = referenceRig.GetComponentInChildren<SkinnedMeshRenderer>().rootBone.GetComponentsInChildren<Component>();
 
                 foreach (Component comp in components)
                 {
-                    // Skip if the component is a Transform
+                    // We remove any unnecessary scripts that may be in the skeleton, since it is a duplicate and could have unintended consequences
                     if (!(comp is Transform))
                     {
                         Destroy(comp);
@@ -140,32 +151,6 @@ namespace ProceduralHitstop
             }
         }
 
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            if (scriptableTransition != null)
-            {
-                scriptableTransition.Transition.Events.OnEnd += PlayAnimation;
-                PlayAnimation();
-            }
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            Time.timeScale = animationSpeed;
-        }
-
-        void PlayAnimation()
-        {
-            haltableRig.PlayAnimation(scriptableTransition.Transition);
-            //referenceRig.PlayAnimation(scriptableTransition);
-            if (hasHitStop) IncurHitStop(manuallyPlacedHitstopPoints[0]);
-        }
-
-
         void MatchIKTargetWithBone(Transform bone)
         {
             target.SetParent(bone);
@@ -173,69 +158,46 @@ namespace ProceduralHitstop
             target.localRotation = Quaternion.Euler(Vector3.zero);
         }
 
-        IEnumerator HitStop(Transform impactPoint, float delay = 0)
+        public void IncurHitStop(Transform impactPoint, float delay = 0.55f)
         {
+            StartCoroutine(HitStop(impactPoint, defaultHitstopParameters, delay));
+        }
+
+        public void IncurHitStop(Transform impactPoint, HitstopParameters parameters, float delay = 0.55f)
+        {
+            StartCoroutine(HitStop(impactPoint, parameters, delay));
+        }
+
+        IEnumerator HitStop(Transform impactPoint, HitstopParameters parameters, float delay = 0)
+        {
+
             referenceRig.MatchOtherHaltableRig(haltableRig);
-            //Destroy(ik);
             yield return delay == 0 ? null : new WaitForSeconds(delay);
 
             if (ikControllers.ContainsKey(impactPoint))
             {
                 ChainIKConstraint ikConstraint = ikControllers[impactPoint].constraint;
-                /*
-                ik = ikGameObject.AddComponent<ChainIKConstraint>();
-                ik.Reset();
-                ik.data.target = target;
-                ik.data.root = root;
-                ik.data.tip = impactPoint;
-
-                haltableRig.animator.enabled = false;
-                builder.Build();
-                haltableRig.animator.enabled = true;
-                */
-                //SetNewPointOfImpact(impactPoint);
-                //var a = haltableRig.currentState.Clip;
-
             
                 ikConstraint.weight = 1;
                 float animationTimeBeforeHitStop = referenceRig.CurrentAnimationTime();
-                MatchIKTargetWithBone(ikControllers[impactPoint].impactPointReference);// referenceRig.pointOfImpact);
+                MatchIKTargetWithBone(ikControllers[impactPoint].impactPointReference);
 
-                referenceRig.SetCurrentAnimationSpeed(hitstopSpeedMultiplier);
+                referenceRig.SetCurrentAnimationSpeed(parameters.hitstopSpeedMultiplier);
 
-                /*
-                if (hasJitter)
-                {
-                    float hitStopDurationInverse = 1 / hitstopDuration;
-                    for (float i = 0; i <= hitstopDuration; i += Time.deltaTime)
-                    {
-                        referenceRig.MoveAnimationTime((Mathf.PerlinNoise(i * hitStopDurationInverse, 0f) - 0.5f) * 2f * timeJitter);
-                        yield return null;
-                    }
-
-                    referenceRig.SetAnimationTime(animationTimeBeforeHitStop + hitstopDuration * hitstopSpeedMultiplier);
-                }
-                else
-                {
-                
-                }
-                */
-                yield return new WaitForSeconds(hitstopDuration);
+                yield return new WaitForSeconds(parameters.hitstopDuration);
 
                 float postImpactTime = referenceRig.CurrentAnimationTime();
-                var durationToCatchUpOn = (1 - hitstopSpeedMultiplier) * hitstopDuration + hitstopReturnDuration;
-                var normalizeMultiplier = 1 / hitstopReturnDuration;
+                var durationToCatchUpOn = (1 - parameters.hitstopSpeedMultiplier) * parameters.hitstopDuration + parameters.hitstopReturnDuration;
+                var normalizeMultiplier = 1 / parameters.hitstopReturnDuration;
 
-                for (float i = 0; i <= hitstopReturnDuration; i += Time.deltaTime)
+                for (float i = 0; i <= parameters.hitstopReturnDuration; i += Time.deltaTime)
                 {
-                    referenceRig.SetAnimationTime(postImpactTime + (returnCurve.Evaluate(i * normalizeMultiplier) * durationToCatchUpOn));
+                    referenceRig.SetAnimationTime(postImpactTime + (parameters.returnCurve.Evaluate(i * normalizeMultiplier) * durationToCatchUpOn));
                     yield return null;
                 }
 
-                referenceRig.SetAnimationTime(haltableRig.CurrentAnimationTime());
-                referenceRig.SetCurrentAnimationSpeed();
+                referenceRig.animancer.Stop();
 
-                //MatchIKTargetWithTransform();
                 ikConstraint.weight = 0;
             }
             else

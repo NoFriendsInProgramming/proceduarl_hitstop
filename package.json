@@ -1,7 +1,7 @@
 {
   "name": "com.nofriendsinprogramming.proceduralhitstop",
   "displayName": "Procedural Hitstop via IK",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "unity": "2022.3",
   "description": "A set of scripts to mimic hitstop via IK animation that doesn't affect game speed",
   "dependencies": {

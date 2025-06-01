@@ -688,6 +688,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1075809750}
   - component: {fileID: 1075809749}
+  - component: {fileID: 1075809751}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -707,42 +708,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64d0c6d78e0011e4994c009e87e8ad25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manuallyPlacedHitstopPoints:
-  - {fileID: 1546440509}
-  - {fileID: 1116754270}
-  tip: {fileID: 1546440509}
-  root: {fileID: 1726836754}
-  hasHitStop: 1
-  hitstopDuration: 0.1
-  hitstopSpeedMultiplier: 0.2
-  hitstopReturnDuration: 0.3
-  animationSpeed: 1
-  returnCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  <scriptableTransition>k__BackingField: {fileID: 11400000, guid: 16dc9938d56e0ea49bb2ea8aee8eaea5,
-    type: 2}
+  manuallyPlacedHitstopPairs: []
+  defaultHitstopParameters:
+    hitstopDuration: 0.1
+    hitstopSpeedMultiplier: 0.2
+    hitstopReturnDuration: 0.3
+    returnCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
 --- !u!4 &1075809750
 Transform:
   m_ObjectHideFlags: 0
@@ -759,6 +753,87 @@ Transform:
   - {fileID: 1730829007}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1075809751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075809748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c8fb67b8c8cd6f4ab6d0aca7518e360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isUsingHitstop: 1
+  currentSpeed: 1
+  animationsWithHitstop:
+  - hitstopTime: 0.55
+    transition: {fileID: 11400000, guid: b5b56f7ba05359448bd30abcc35b7ac5, type: 2}
+    hitstopPair:
+      tip: {fileID: 589955569}
+      root: {fileID: 1106371267}
+    hitstopParameters:
+      hitstopDuration: 0.1
+      hitstopSpeedMultiplier: 0.2
+      hitstopReturnDuration: 0.3
+      returnCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+  - hitstopTime: 0.9
+    transition: {fileID: 11400000, guid: 16dc9938d56e0ea49bb2ea8aee8eaea5, type: 2}
+    hitstopPair:
+      tip: {fileID: 1546440509}
+      root: {fileID: 1726836754}
+    hitstopParameters:
+      hitstopDuration: 0.1
+      hitstopSpeedMultiplier: 0.2
+      hitstopReturnDuration: 0.3
+      returnCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 2
+          outSlope: 2
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
 --- !u!4 &1106371267 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8169382868667117632, guid: d668391495b70ad458749790bf7e88e2,

@@ -1,6 +1,4 @@
 using Animancer;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProceduralHitstop
@@ -10,20 +8,24 @@ namespace ProceduralHitstop
         [HideInInspector] public Transform[] hitstopPoints;
 
         AnimancerComponent _animancer;
-        AnimancerState _currentState;
-        AnimancerState currentState => _currentState ??= animancer.States.Current;
-        AnimancerComponent animancer => _animancer ??= GetComponent<AnimancerComponent>();
+        AnimancerState currentState => animancer.States.Current;
+        public AnimancerComponent animancer => _animancer ??= GetComponent<AnimancerComponent>();
 
         public Animator animator => animancer.Animator;
 
-
-        //public void PlayAnimation(ClipTransition transition) => _currentState = animancer.Play(lastTransitionPlayed = transition);
-        public void PlayAnimation(ITransition transition) => _currentState = animancer.Play(transition);
         public void MatchOtherHaltableRig(HaltableRig other)
         {
             var currentState = animancer.Play(other.currentState.Clip);
             currentState.Speed = other.currentState.Speed;
             currentState.NormalizedTime = other.currentState.NormalizedTime;
+
+        }
+
+        public void MatchOtherHaltableRig(HaltableRig other, float normalizedTime)
+        {
+            var currentState = animancer.Play(other.currentState.Clip);
+            currentState.Speed = other.currentState.Speed;
+            currentState.NormalizedTime = normalizedTime;
 
         }
         public float CurrentAnimationTime() => currentState.Time;

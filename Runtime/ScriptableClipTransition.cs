@@ -11,10 +11,7 @@ namespace ProceduralHitstop
         [SerializeField] ClipTransition transition;
 
         public AnimationClip clip => transition.Clip;
-        public ClipTransition Transition => transition;
+        public ClipTransition ClipTransition => transition;
 
-        //public static implicit operator ITransition(ScriptableClipTransition scriptableTransition) => scriptableTransition.transition;
-
-    
     }
 }
