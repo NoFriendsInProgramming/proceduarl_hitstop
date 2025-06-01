@@ -1,4 +1,4 @@
-# GitHub Plugin
+# Procedural Hitstop via Inverse Kinematics
 
 ## Description
 
