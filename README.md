@@ -6,7 +6,7 @@ A plugin that allows you to simulate the traditional hitstop effect via IK anima
 
 ## Dependencies
 
-This package **requires [Animancer](https://assetstore.unity.com/packages/tools/animation/animancer-148478)** to be installed separately via the Unity Asset Store.
+This package **requires [Animancer](https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522)** to be installed separately via the Unity Asset Store.
 
 Please make sure to import Animancer into your project before using this plugin to avoid compilation errors.
 
