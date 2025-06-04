@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Alex Ruiz Suarez
+// Licensed under CC BY-NC-ND 4.0
+// See LICENSE file for details
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
